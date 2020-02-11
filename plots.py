@@ -14,6 +14,7 @@ class Figure1:
     def __init__(self, csv_file_path, base_path='.',
                  inchi_key='XFYICZOIWSBQSK-UHFFFAOYSA-N',
                  clustering=None):
+        self.current_amine_inchi = inchi_key
         self.base_path = base_path
         self.clustering = clustering
         self.full_perovskite_data = pd.read_csv(
@@ -25,7 +26,7 @@ class Figure1:
                                   self.inchis['Chemical Name']))
         #self.state_spaces = pd.read_csv('./perovskitedata/state_spaces.csv')
         self.ss_dict = json.load(open('./data/s_spaces.json', 'r'))
-        self.generate_plot(inchi_key)
+        self.generate_plot(self.current_amine_inchi)
         self.setup_widgets()
 
     def generate_plot(self, inchi_key):
@@ -45,6 +46,23 @@ class Figure1:
                                    opacity=0.50,
                                    alphahull=0)
 
+    def setup_success_hull(self, success_hull, success_points):
+        if success_hull:
+            xp, yp, zp = zip(*success_points[success_hull.vertices])
+            self.success_hull_plot = go.Mesh3d(x=xp,
+                                               y=yp,
+                                               z=zp,
+                                               color='red',
+                                               opacity=0.50,
+                                               alphahull=0)
+        else:
+            self.success_hull_plot = go.Mesh3d(x=[0],
+                                               y=[0],
+                                               z=[0],
+                                               color='red',
+                                               opacity=0.50,
+                                               alphahull=0)
+
     def gen_amine_traces(self, inchi_key, amine_short_name='Me2NH2I'):
         amine_data = self.full_perovskite_data.loc[
             self.full_perovskite_data['_rxn_organic_inchikey']
@@ -53,8 +71,11 @@ class Figure1:
         success_hull = None
 
         #print(f'Total points: {len(amine_data)}')
-        print(self.ss_dict.keys())
-        xp, yp, zp = zip(*self.ss_dict[inchi_key])
+        # print(self.ss_dict.keys())
+        if inchi_key in self.ss_dict:
+            xp, yp, zp = zip(*self.ss_dict[inchi_key])
+        else:
+            xp, yp, zp = [0], [0], [0]
         self.max_inorg = max([amine_data['_rxn_M_inorganic'].max(), max(xp)])
         self.max_org = max([amine_data['_rxn_M_organic'].max(), max(yp)])
         self.max_acid = max([amine_data['_rxn_M_acid'].max(), max(zp)])
@@ -102,29 +123,17 @@ class Figure1:
 
                 if len(success_points) > 3:
                     success_hull = ConvexHull(success_points)
+                else:
+                    success_hull = None
+
+                self.setup_success_hull(success_hull, success_points)
 
         self.data = self.amine_crystal_traces
 
-        if success_hull:
-            xp, yp, zp = zip(*success_points[success_hull.vertices])
-            self.success_hull_plot = go.Mesh3d(x=xp,
-                                               y=yp,
-                                               z=zp,
-                                               color='red',
-                                               opacity=0.50,
-                                               alphahull=0)
-        else:
-            self.success_hull_plot = go.Mesh3d(x=[0],
-                                               y=[0],
-                                               z=[0],
-                                               color='red',
-                                               opacity=0.50,
-                                               alphahull=0)
-
         self.data += [self.success_hull_plot]
 
-        if self.hull_mesh:
-            self.data += [self.hull_mesh]
+        # if self.hull_mesh:
+        self.data += [self.hull_mesh]
 
     def setup_plot(self, xaxis_label='Lead Iodide [PbI3] (M)',
                    yaxis_label='Dimethylammonium Iodide<br>[Me2NH2I] (M)',
@@ -279,7 +288,9 @@ class Figure1:
         amine_data = self.full_perovskite_data[
             self.full_perovskite_data['_rxn_organic_inchikey'] ==
             new_amine_inchi]
-        self.generate_plot(new_amine_inchi)
+        self.current_amine_inchi = new_amine_inchi
+        self.generate_plot(self.current_amine_inchi)
+        self.reset_plot_callback(None)
 
     def get_plate_options(self):
         plates = set()
@@ -377,9 +388,9 @@ class Figure1:
                    '_rxn_mixingtime1S', '_rxn_mixingtime2S',
                    '_rxn_reactiontimeS', '_rxn_stirrateRPM',
                    '_rxn_temperatureC_actual_bulk']
-        column_names = ['Well ID', 'Acid', 'Lead Iodide [PbI2]',
-                        'Dimethylammonium Iodide [Me2NH2I]',
-                        # ''.format(self.chem_dict[])
+        column_names = ['Well ID', 'Formic Acid [FAH]', 'Lead Iodide [PbI2]',
+                        #'Dimethylammonium Iodide [Me2NH2I]',
+                        '{}'.format(self.chem_dict[self.current_amine_inchi]),
                         'Mixing Time Stage 1 (s)', 'Mixing Time Stage 2 (s)',
                         'Reaction Time (s)', 'Stir Rate (RPM)',
                         'Temperature (C)']
