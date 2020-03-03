@@ -131,9 +131,9 @@ class Figure1:
         self.data = self.amine_crystal_traces
 
         self.data += [self.success_hull_plot]
+        self.data += [self.hull_mesh]
 
         # if self.hull_mesh:
-        self.data += [self.hull_mesh]
 
     def setup_plot(self, xaxis_label='Lead Iodide [PbI3] (M)',
                    yaxis_label='Dimethylammonium Iodide<br>[Me2NH2I] (M)',
@@ -182,11 +182,9 @@ class Figure1:
                 pad=2
             ),
         )
+
         try:
             with self.fig.batch_update():
-                self.fig.data[-1].x = [0.0]
-                self.fig.data[-1].y = [0.0]
-                self.fig.data[-1].z = [0.0]
                 for i, trace in enumerate(self.data):
                     self.fig.data[i].x = trace.x
                     self.fig.data[i].y = trace.y
@@ -196,7 +194,7 @@ class Figure1:
                 self.fig.layout.update(self.layout)
         except:
             self.fig = go.FigureWidget(data=self.data, layout=self.layout)
-            for trace in self.fig.data[:-1]:
+            for trace in self.fig.data[:-2]:
                 trace.on_click(self.show_data_3d_callback)
 
     def setup_widgets(self, image_folder='data/images'):
