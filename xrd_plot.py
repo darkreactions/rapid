@@ -8,6 +8,8 @@ import pandas as pd
 class XRD:
     def __init__(self):
         xrd_paths = Path.cwd() / Path('data/xrd/xy')
+        data_path = Path.cwd() / Path('data/0042.perovskitedata_RAPID.csv')
+
         self.xrd_files = defaultdict(list)
 
         # Scanning xrd files
@@ -22,30 +24,70 @@ class XRD:
                 self.xrd_files[plate_name].append(None)
 
         self.plate_list = list(self.xrd_files.keys())
+
+        self.inchis = pd.read_csv('./data/inventory.csv')
+        self.inchi_dict = dict(zip(self.inchis['Chemical Name'],
+                                   self.inchis['InChI Key (ID)']))
+        self.chem_dict = dict(zip(self.inchis['InChI Key (ID)'],
+                                  self.inchis['Chemical Name']))
+        self.data = pd.read_csv(data_path)
+        self.amine_to_plate_dict = defaultdict(list)
+        for plate in self.plate_list:
+            filtered = self.data[self.data['RunID_vial'].str.contains(
+                plate, regex=False)]
+            if len(filtered) > 0:
+                amine_inchi = filtered.iloc[0]['_rxn_organic_inchikey']
+                self.amine_to_plate_dict[amine_inchi].append(plate)
+            else:
+                print('Plate not found : {}'.format(plate))
+
+        # print(self.amine_to_plate_dict)
+        self.amine_list = [self.chem_dict[key]
+                           for key in self.amine_to_plate_dict.keys()]
+
+        self.select_amine_widget = Dropdown(
+            options=self.amine_list,
+            description='Amine:',
+            disabled=False,
+        )
+        self.select_amine_widget.observe(self.change_amine, 'value')
+
+        self.selected_amine = self.amine_list[0]
+        self.selected_inchi = self.inchi_dict[self.selected_amine]
+        self.selected_plate = self.amine_to_plate_dict[self.selected_inchi][0]
+        self.selected_vial = self.xrd_files[self.selected_plate][0]
+
         self.select_plate_widget = Dropdown(
-            options=self.plate_list,
+            options=self.amine_to_plate_dict[self.selected_inchi],
             description='Plate:',
             disabled=False,
         )
         self.select_plate_widget.observe(self.change_plates, 'value')
 
         self.select_vial_widget = Dropdown(
-            options=self.xrd_files[self.plate_list[0]],
+            options=self.xrd_files[self.selected_plate],
             description='Vial:',
             disabled=False,
         )
         self.select_vial_widget.observe(self.change_vial, 'value')
 
         # Initialize data
-        self.selected_plate = self.plate_list[0]
-        self.selected_vial = self.xrd_files[self.plate_list[0]][0]
+
         self.xyplot = XYPlot([0], [0]).plot(r'$2\theta \text{ (degree)}$',
                                             'Intensity (a.u)')
 
         self.select_xrd()
         self.full_widget = VBox(
-            [self.xyplot, self.select_plate_widget, self.select_vial_widget])
+            [self.xyplot, self.select_amine_widget, HBox([self.select_plate_widget, self.select_vial_widget])])
         self.full_widget.layout.align_items = 'center'
+
+    def change_amine(self, state):
+        self.selected_amine = state.new
+        self.selected_inchi = self.inchi_dict[self.selected_amine]
+        self.select_plate_widget.options = self.amine_to_plate_dict[self.selected_inchi]
+        self.selected_plate = self.amine_to_plate_dict[self.selected_inchi][0]
+        self.selected_vial = self.xrd_files[self.selected_plate][0]
+        self.select_xrd()
 
     def change_plates(self, state):
         self.selected_plate = state.new
