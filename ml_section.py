@@ -7,7 +7,7 @@ import numpy as np
 
 class MLSection:
     def __init__(self):
-        self.data = pickle.load(open('all_data.pkl', 'rb'))
+        self.data = pickle.load(open('./data/ml_data.pkl', 'rb'))
         self.setup_widgets()
         self.refresh_plot()
 
