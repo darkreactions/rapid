@@ -14,7 +14,7 @@ def rescale_xrd_df_from_different_sources(input_haverford_df, lbl_wavelength=1.7
 
     Per Zhi Li, LBNL uses a Co source (1.79A wavelength) and HC uses a Cu source (1.54A wavelength).
     :param input_haverford_df: a pandas dataframe representing a Haverford XY file with two columns: two_theta and intensity
-    :return: As dict keyed by run_id, valued with the row from the leaderboard
+    :return: A modified dataframe where the Haverford two_theta data is rescaled to be comparable to LBNL data
    """
     returned_df = input_haverford_df.copy()
     lambda_ratio = lbl_wavelength / haverford_wavelength
