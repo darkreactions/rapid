@@ -40,8 +40,8 @@ class XRD:
             if len(filtered) > 0:
                 amine_inchi = filtered.iloc[0]['_rxn_organic_inchikey']
                 self.amine_to_plate_dict[amine_inchi].append(plate)
-            else:
-                print('Plate not found : {}'.format(plate))
+#            else:
+#                print('Plate not found : {}'.format(plate))
 
         # print(self.amine_to_plate_dict)
         self.amine_list = [self.chem_dict[key]
