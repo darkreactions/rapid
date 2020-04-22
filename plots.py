@@ -6,7 +6,7 @@ from ipywidgets import (Tab, SelectMultiple, Accordion, ToggleButton,
 from ipywidgets import HBox, VBox, Image, Layout, HTML
 import numpy as np
 from scipy.spatial import ConvexHull
-from sklearn.cluster import KMeans, DBSCAN, OPTICS
+from sklearn.cluster import KMeans, DBSCAN
 import json
 
 
