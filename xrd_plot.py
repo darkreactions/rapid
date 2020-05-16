@@ -32,11 +32,11 @@ class XRD:
                                    self.inchis['InChI Key (ID)']))
         self.chem_dict = dict(zip(self.inchis['InChI Key (ID)'],
                                   self.inchis['Chemical Name']))
-        self.data = pd.read_csv(data_path)
+        self.data = pd.read_csv(data_path, low_memory=False)
         self.amine_to_plate_dict = defaultdict(list)
         for plate in self.plate_list:
             filtered = self.data[self.data['RunID_vial'].str.contains(
-                plate, regex=False)]
+                plate, regex=False, na=False)]
             if len(filtered) > 0:
                 amine_inchi = filtered.iloc[0]['_rxn_organic_inchikey']
                 self.amine_to_plate_dict[amine_inchi].append(plate)
