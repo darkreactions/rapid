@@ -18,12 +18,13 @@ All raw data files are located in the ```data``` folder
 1. cifs - Contains the Crystallographic Information Files
 2. images - Contains side vial images of each experiment performed
 3. xrd/xy - Contains xy files for XRD data
-4. 0042.perovskitedata_RAPID.csv - Escalate generated data file 
-5. image_list.json - Keeps track of all image files in the image folder
-6. ml_data.pkl - Python pickle file containing ML results
-7. inventory.csv - Chemical inventory data
-8. organic_inchikey.csv - Inchi keys and chemical names
-9. s_spaces.json - Co-ordinates of state space for each amine
+4. 0042.perovskitedata_RAPID.csv - Escalate generated data file including 75 experimental and chemical features. This CSV file is used in visualization and machine learning. (see "Perovskite Dataset Description" for feature explanations)
+5. 0042.perovskitedata_RAPID_full.csv - Complete escalate generated data file with all 787 features, including "_raw_" features describing experiment details. The csv file is not used for visualization or machine learning. 
+6. image_list.json - Keeps track of all image files in the image folder
+7. ml_data.pkl - Python pickle file containing ML results
+8. inventory.csv - Chemical inventory data
+9. organic_inchikey.csv - Inchi keys and chemical names
+10. s_spaces.json - Co-ordinates of state space for each amine
 
 ### Scripts
 The following python scripts are used in the RAPID.ipynb notebook to generate visualizations
