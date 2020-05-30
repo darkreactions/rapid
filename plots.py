@@ -19,12 +19,15 @@ class Figure1:
         self.clustering = clustering
         self.full_perovskite_data = pd.read_csv(
             csv_file_path, low_memory=False)
+        # Filtering so that only 95 degree experiments are included
+        self.full_perovskite_data = self.full_perovskite_data[
+            self.full_perovskite_data['_rxn_temperatureC_actual_bulk'] == 95]
         self.inchis = pd.read_csv('./data/inventory.csv')
         self.inchi_dict = dict(zip(self.inchis['Chemical Name'],
                                    self.inchis['InChI Key (ID)']))
         self.chem_dict = dict(zip(self.inchis['InChI Key (ID)'],
                                   self.inchis['Chemical Name']))
-        #self.state_spaces = pd.read_csv('./perovskitedata/state_spaces.csv')
+        # self.state_spaces = pd.read_csv('./perovskitedata/state_spaces.csv')
         self.ss_dict = json.load(open('./data/s_spaces.json', 'r'))
         self.generate_plot(self.current_amine_inchi)
         self.setup_widgets()
@@ -70,7 +73,7 @@ class Figure1:
 
         success_hull = None
 
-        #print(f'Total points: {len(amine_data)}')
+        # print(f'Total points: {len(amine_data)}')
         # print(self.ss_dict.keys())
         if inchi_key in self.ss_dict:
             xp, yp, zp = zip(*self.ss_dict[inchi_key])
@@ -98,8 +101,8 @@ class Figure1:
                 y=df['_rxn_M_organic'],
                 z=df['_rxn_M_acid'],
                 mode='markers',
-                name='Score {}'.format(i+1),
-                text=["""<b>Inorganic</b>: {:.3f} <br><b>{}</b>: {:.3f}<br><b>Solvent</b>: {:.3f}""".format(
+                name='Class {}'.format(i+1),
+                text=["""<b>Lead Iodide [PbI2] (M)</b>: {:.3f} <br><b>{} (M)</b>: {:.3f}<br><b>Formic Acid [FAH] (M)</b>: {:.3f}""".format(
                     row['_rxn_M_inorganic'],
                     self.chem_dict[row['_rxn_organic_inchikey']],
                     row['_rxn_M_organic'],
@@ -135,7 +138,7 @@ class Figure1:
 
         # if self.hull_mesh:
 
-    def setup_plot(self, xaxis_label='Lead Iodide [PbI3] (M)',
+    def setup_plot(self, xaxis_label='Lead Iodide [PbI2] (M)',
                    yaxis_label='Dimethylammonium Iodide<br>[Me2NH2I] (M)',
                    zaxis_label='Formic Acid [FAH] (M)'):
         self.layout = go.Layout(
@@ -199,7 +202,7 @@ class Figure1:
 
     def setup_widgets(self, image_folder='data/images'):
         image_folder = self.base_path + '/' + image_folder
-        #self.image_list = os.listdir(image_folder)
+        # self.image_list = os.listdir(image_folder)
         self.image_list = json.load(open('./data/image_list.json', 'r'))
         self.image_list = self.image_list['image_list']
         # Data Filter Setup
@@ -255,7 +258,7 @@ class Figure1:
         self.experiment_table.value = "Please click on a point"
         "to explore experiment details"
 
-        #self.image_data = {}
+        # self.image_data = {}
 
         with open("{}/{}".format(image_folder, 'not_found.png'), "rb") as f:
             b = f.read()
@@ -375,20 +378,21 @@ class Figure1:
         if img_filename in self.image_list:
             with open(os.path.join(image_folder, img_filename), "rb") as f:
                 b = f.read()
-                #self.image_data[img_filename] = b
+                # self.image_data[img_filename] = b
                 self.image_widget.value = b
         else:
             with open(os.path.join(image_folder, 'not_found.png'), "rb") as f:
                 b = f.read()
                 self.image_widget.value = b
-            #self.image_widget.value = self.image_data['not_found.png']
+            # self.image_widget.value = self.image_data['not_found.png']
         columns = ['RunID_vial', '_rxn_M_acid', '_rxn_M_inorganic', '_rxn_M_organic',
                    '_rxn_mixingtime1S', '_rxn_mixingtime2S',
                    '_rxn_reactiontimeS', '_rxn_stirrateRPM',
                    '_rxn_temperatureC_actual_bulk']
-        column_names = ['Well ID', 'Formic Acid [FAH]', 'Lead Iodide [PbI2]',
-                        #'Dimethylammonium Iodide [Me2NH2I]',
-                        '{}'.format(self.chem_dict[self.current_amine_inchi]),
+        column_names = ['Well ID', 'Formic Acid [FAH] (M)', 'Lead Iodide [PbI2] (M)',
+                        # 'Dimethylammonium Iodide [Me2NH2I]',
+                        '{} (M)'.format(
+                            self.chem_dict[self.current_amine_inchi]),
                         'Mixing Time Stage 1 (s)', 'Mixing Time Stage 2 (s)',
                         'Reaction Time (s)', 'Stir Rate (RPM)',
                         'Temperature (C)']

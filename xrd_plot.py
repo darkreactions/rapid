@@ -33,6 +33,7 @@ class XRD:
         self.chem_dict = dict(zip(self.inchis['InChI Key (ID)'],
                                   self.inchis['Chemical Name']))
         self.data = pd.read_csv(data_path, low_memory=False)
+        self.data = self.data[self.data['_rxn_temperatureC_actual_bulk'] == 95]
         self.amine_to_plate_dict = defaultdict(list)
         for plate in self.plate_list:
             filtered = self.data[self.data['RunID_vial'].str.contains(
