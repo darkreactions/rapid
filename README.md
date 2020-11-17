@@ -3,6 +3,8 @@ This repo contains code, data and jupyter notebook related to RAPID.
 
 Click this button to access the jupyter notebook without downloading/installing [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/darkreactions/rapid/master?filepath=RAPID.ipynb)
 
+If the above link does not launch. Try an alternative server: [![Binder](https://notebooks.gesis.org/binder/badge_logo.svg)](https://notebooks.gesis.org/binder/v2/gh/darkreactions/rapid/HEAD?filepath=RAPID.ipynb)
+
 ## Repository contents
 The following sections indicate the folders which contain code and related data
 
